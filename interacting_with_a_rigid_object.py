@@ -38,12 +38,12 @@ def design_scene():
     cfg.func("/World/Light", cfg)
     print("made it here")
 
-    ## spawn distant light
-    #cfg_light_distant = sim_utils.DistantLightCfg(
-    #    intensity=3000.0,
-    #    color=(0.75, 0.75, 0.75),
-    #    )
-    #cfg_light_distant.func("/World/lightDistant", cfg_light_distant, translation=(1, 0, 10))
+    # spawn distant light
+    cfg_light_distant = sim_utils.DistantLightCfg(
+        intensity=3000.0,
+        color=(0.75, 0.75, 0.75),
+        )
+    cfg_light_distant.func("/World/lightDistant", cfg_light_distant, translation=(1, 0, 10))
 
     # Create separate groups called "Origin1", "Origin2", "Origin3"
     # Each group will have a robot in it
@@ -56,7 +56,7 @@ def design_scene():
     cone_cfg = RigidObjectCfg(
         prim_path="/World/Origin.*/Cone",
         spawn=sim_utils.ConeCfg(
-            radius=0.3,
+            radius=0.1,
             height=0.2,
             rigid_props=sim_utils.RigidBodyPropertiesCfg(),
             mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
@@ -67,8 +67,38 @@ def design_scene():
     )
     cone_object = RigidObject(cfg=cone_cfg)
 
+
+    sphere_cfg = RigidObjectCfg(
+        prim_path="/World/Stuff/Sphere",
+        spawn=sim_utils.SphereCfg(
+            radius=0.1,
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(),
+            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
+            collision_props=sim_utils.CollisionPropertiesCfg(),
+            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.0, 1.0, 0.0), metallic=0.2),
+        ),
+        init_state=RigidObjectCfg.InitialStateCfg(),
+    )
+    sphere_object = RigidObject(cfg=sphere_cfg)
+
+
+    cuboid_cfg = RigidObjectCfg(
+        prim_path="/World/Stuff/Cuboid",
+        spawn=sim_utils.CuboidCfg(
+            size=(0.1, 0.1, 0.1),
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(),
+            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
+            collision_props=sim_utils.CollisionPropertiesCfg(),
+            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.0, 1.0, 0.0), metallic=0.2),
+        ),
+        init_state=RigidObjectCfg.InitialStateCfg(),
+    )
+    cuboid_object = RigidObject(cfg=cuboid_cfg)
+
+
+
     # return the scene information
-    scene_entities = {"cone": cone_object}
+    scene_entities = {"cone": cone_object, "sphere": sphere_object, "cuboid":cuboid_object}
     return scene_entities, origins
 
 def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, RigidObject], origins: torch.Tensor):
