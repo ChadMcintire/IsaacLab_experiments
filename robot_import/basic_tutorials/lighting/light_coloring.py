@@ -40,43 +40,27 @@ from utils.quat import quaternion_from_degrees
 
 def design_scene():
     """Designs the scene by spawning ground plane, light, objects and meshes from usd files."""
-    # spawn distant light
-    #cfg_light_distant = sim_utils.DistantLightCfg(
-    #    intensity=500.0,
-    #    color=(1.0, 0.0, 0.0),
-    #)
-    cfg_light_distant.func("/World/lightDistant", cfg_light_distant, translation=(1, 0, 10))
 
     #Ground-plane
     cfg_ground = sim_utils.GroundPlaneCfg()
     cfg_ground.func("/World/defaultGroundPlane", cfg_ground)
 
-
-    #Spawn in 3 cylinder lights, red, green, and blue
-    #add red light
-    cfg_light = sim_utils.CylinderLightCfg(intensity=3000.0, color=(1.0, 0.0, 0.0), length=5,)
-    cfg_light.func("/World/Light", cfg_light, translation=(0.0, 1.0, 1.5))#, 
-
-    #add green light
-    cfg_light2 = sim_utils.CylinderLightCfg(intensity=3000.0, color=(0.0, 1.0, 0.0), length=5,)
-    cfg_light2.func("/World/Light2", cfg_light2, translation=(0.0, -1.0, 1.5),  )
-
-    #add blue light
-    cfg_light2 = sim_utils.CylinderLightCfg(intensity=3000.0, color=(0.0, 0.0, 1.0), length=5,)
-    cfg_light2.func("/World/Light3", cfg_light2, translation=(0.0, 3.0, 1.5),  )
-
-
     # translation (x,y,z)
     # orientation (w, x, y, z) (each float in x, y, z is 0 to 180, where w is a scalar component)
     # scale :    isaaclab.sim.spawners.lights.spawn_light has no attribute scale, but it does in isaac_sim, how do I access it or why can I not?
 
+    #Spawn in 3 cylinder lights, red, green, and blue
+    #add red light
+    cfg_light = sim_utils.CylinderLightCfg(intensity=8000.0, color=(1.0, 0.0, 0.0), length=5,)
+    cfg_light.func("/World/Red_Light", cfg_light, translation=(-1.0, 1.0, 1.5), orientation=(quaternion_from_degrees( 0, 0, 90))) 
 
-    # these are the same out put in isaacsim but both are not in the correct orientation
-    #cfg_light.func("/World/Light", cfg_light, translation=(0.0, 0.0, 1.5),  orientation=(quaternion_from_degrees( 18, 18, 18)))#, orientation=(0.0,0.0,1.5),) #scale=(1.0, 2.0, 1.0))
-    #cfg_light.func("/World/Light", cfg_light, translation=(0.0, 0.0, 1.5),  orientation=(0.888, 0.0, −0.325, 0.325))#, orientation=(0.0,0.0,1.5),) #scale=(1.0, 2.0, 1.0))
+    #add green light
+    cfg_light2 = sim_utils.CylinderLightCfg(intensity=3000.0, color=(0.0, 1.0, 0.0), length=5,)
+    cfg_light2.func("/World/Green_Light2", cfg_light2, translation=(-2.0, -2.5, 1.5), orientation=(quaternion_from_degrees( 0, 90, 0) ))
 
-    #cfg_light.func("/World/Light", cfg_light, translation=(0.0, 0.0, 1.5),  orientation=(quaternion_from_degrees( 18, 18, 18)))#, orientation=(0.0,0.0,1.5),) #scale=(1.0, 2.0, 1.0))
-
+    #add blue light
+    cfg_light3 = sim_utils.CylinderLightCfg(intensity=8000.0, color=(0.0, 0.0, 1.0), length=5,)
+    cfg_light3.func("/World/Blue_Light3", cfg_light3, translation=(-3.0, 3.0, 1.5), orientation=(quaternion_from_degrees( 90, 0, 0)  ))
 
 
 def main():
