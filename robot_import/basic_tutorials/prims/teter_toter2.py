@@ -14,12 +14,11 @@ simulation_app = app_launcher.app
 
 """Rest everything follows."""
 
-import isaacsim.core.utils.prims as prim_utils
-
 import isaaclab.sim as sim_utils
 from isaaclab.sim import SimulationContext
-from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
+import isaacsim.core.utils.prims as prim_utils
+from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 import isaaclab.utils.math as math_utils
 from isaaclab.assets import RigidObject, RigidObjectCfg
 import torch
@@ -37,29 +36,11 @@ def design_scene():
     )
     cfg_light_distant.func("/World/lightDistant", cfg_light_distant, translation=(1, 0, 10))
 
-        # Create separate groups called "Origin1", "Origin2", "Origin3"
-    # Each group will have a robot in it
-    origins = [[0.25, 0.25, 0.0], [-0.25, 0.25, 0.0], [0.25, -0.25, 0.0], [-0.25, -0.25, 0.0]]
-    for i, origin in enumerate(origins):
-        prim_utils.create_prim(f"/World/Origin{i}", "Xform", translation=origin)
 
-    # Rigid Object
-    cone_cfg = RigidObjectCfg(
-        prim_path="/World/Origin.*/Cone",
-        spawn=sim_utils.ConeCfg(
-            radius=0.1,
-            height=0.2,
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(),
-            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
-            collision_props=sim_utils.CollisionPropertiesCfg(),
-            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.0, 1.0, 0.0), metallic=0.2),
-        ),
-        init_state=RigidObjectCfg.InitialStateCfg(),
-    )
-    cone_object = RigidObject(cfg=cone_cfg)
-
-
+    # Create Xform for the teter toter
     prim_utils.create_prim(f"/World/TeterToter", "Xform", translation= [0.0, 0.0, 0.0])
+
+    # Make the base of the teter toter
     cube_Base_cfg = RigidObjectCfg(
         prim_path="/World/TeterToter/Base",
         spawn=sim_utils.CuboidCfg(
@@ -73,7 +54,7 @@ def design_scene():
     )
     base_object = RigidObject(cfg=cube_Base_cfg)
 
-
+    # Make the seat of the teter toter
     cube_Seat_cfg = RigidObjectCfg(
         prim_path="/World/TeterToter/Seat",
         spawn=sim_utils.CuboidCfg(
@@ -84,11 +65,10 @@ def design_scene():
             visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(2.0, 0.0, 0.0), metallic=0.2),
         ),
         init_state=RigidObjectCfg.InitialStateCfg( pos=(0.0, 0.0, 0.9)),
-        # 0.29562, 0.1963, -0.24517
     )
     seat_object = RigidObject(cfg=cube_Seat_cfg)
 
-
+    # Make the right cube to bounce
     cube_right_cfg = RigidObjectCfg(
         prim_path="/World/TeterToter/Cube_right",
         spawn=sim_utils.CuboidCfg(
@@ -99,12 +79,10 @@ def design_scene():
             visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.0, 2.0, 0.0), metallic=0.2),
         ),
         init_state=RigidObjectCfg.InitialStateCfg( pos=(0.0, 1.4, 1.9)),
-        # 0.29562, 0.1963, -0.24517
     )
     right_cube_object = RigidObject(cfg=cube_right_cfg)
 
-
-    #prim_utils.create_prim(f"/World/TeterToter", "Xform", translation= [0.0, 0.0, 2.0])
+    # Make the left cube to bounce
     cube_left_cfg = RigidObjectCfg(
         prim_path="/World/TeterToter/Cube_left",
         spawn=sim_utils.CuboidCfg(
@@ -114,94 +92,56 @@ def design_scene():
             collision_props=sim_utils.CollisionPropertiesCfg(),
             visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.0, 2.0, 0.0), metallic=0.2),
         ),
-        init_state=RigidObjectCfg.InitialStateCfg( pos=(0.0, -1.4, 200.9)),
-        # 0.29562, 0.1963, -0.24517
+        init_state=RigidObjectCfg.InitialStateCfg( pos=(0.0, -1.4, 300.9)),
     )
     left_cube_object = RigidObject(cfg=cube_left_cfg)
 
 
-
-    # return the scene information
-    #scene_entities = {"cone": cone_object, "base": base_object}#, "seat": seat_object}
-    scene_entities = {"cone": cone_object, "base": base_object, "seat": seat_object, "right_cube": right_cube_object, "left_cube": left_cube_object}
-    return scene_entities, origins
+    #set up the scene
+    scene_entities = {"base": base_object, "seat": seat_object, "right_cube": right_cube_object, "left_cube": left_cube_object}
+    return scene_entities
 
 
     
 def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, RigidObject], origins: torch.Tensor):
     """Runs the simulation loop."""
-    # Extract scene entities
-    # note: we only do this here for readability. In general, it is better to access the entities directly from
-    #   the dictionary. This dictionary is replaced by the InteractiveScene class in the next tutorial.
-    cone_object = entities["cone"]
-    # Define simulation stepping
     sim_dt = sim.get_physics_dt() 
-    #new_dt = sim_dt * 0.5  # Slow down simulation by 50%
 
-    #sim.set_physics_dt(new_dt)  # Apply the new timeste
-    #print(f"Updated physics timestep: {new_dt}")
-
-    sim_time = 0.0
-    count = 0
     ## Simulate physics
     while simulation_app.is_running():
-    #    # reset
-    #    if count % 250 == 0:
-    #        # reset counters
-    #        sim_time = 0.0
-    #        count = 0
-    #        # reset root state
-    #        root_state = cone_object.data.default_root_state.clone()
-    #        # sample a random position on a cylinder around the origins
-    #        root_state[:, :3] += origins
-    #        root_state[:, :3] += math_utils.sample_cylinder(
-    #            radius=0.1, h_range=(0.25, 0.5), size=cone_object.num_instances, device=cone_object.device
-    #        )
-    #        # write root state to simulation
-    #        cone_object.write_root_pose_to_sim(root_state[:, :7])
-    #        cone_object.write_root_velocity_to_sim(root_state[:, 7:])
-    #        # reset buffers
-    #        cone_object.reset()
-    #        print("----------------------------------------")
-    #        print("[INFO]: Resetting object state...")
-    #    # apply sim data
-        cone_object.write_data_to_sim()
-        # perform step
         sim.step()
-        # update sim-time
-        sim_time += sim_dt
-        count += 1
-        # update buffers
-        cone_object.update(sim_dt)
-        # print the root position
-        if count % 50 == 0:
-            print(f"Root position (in world): {cone_object.data.root_state_w[:, :3]}")
 
 
 def main():
     """Main function."""
     # Load kit helper
+    
+    # if the brick is above a value of 30, the collisions do not occur
+    # we can either slow down the simulation by changing the dt in the SimulationCfg
+    # or by passing in the enable_ccd=True to the PhysxCfg, (CCD stands for 
+    # continuous collision detection
+
     physx = sim_utils.PhysxCfg(enable_ccd=True)
     sim_cfg = sim_utils.SimulationCfg(device=args_cli.device, physx=physx)
     #sim_cfg = sim_utils.SimulationCfg(dt=0.005, device=args_cli.device, physx=physx)
-    #sim_cfg = sim_utils.SimulationCfg(device=args_cli.device)
     sim = SimulationContext(sim_cfg)
 
+    # The eye is where the camera actually is, the target is what you want the camera to 
+    # look at
 
-
-    # Set main camera
+    # Alternate camera angles
     #sim.set_camera_view(eye=[1.5, 0.0, 1.0], target=[0.0, 0.0, 0.0])
     #sim.set_camera_view(eye=[10.0, 0.0, 3.0], target=[0.0, 0.0, 0.0])
+
     sim.set_camera_view(eye=[-35.0, .0, 30.0], target=[0.0, 0.0, 0.0])
     # Design scene
-    scene_entities, scene_origins = design_scene()
-    scene_origins = torch.tensor(scene_origins, device=sim.device)
+    scene_entities = design_scene()
     # Play the simulator
     sim.reset()
     # Now we are ready!
     print("[INFO]: Setup complete...")
     # Run the simulator
-    run_simulator(sim, scene_entities, scene_origins)
+    run_simulator(sim, scene_entities, {})
 
 
 if __name__ == "__main__":
